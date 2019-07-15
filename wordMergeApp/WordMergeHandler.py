@@ -14,10 +14,10 @@ from django.http import HttpResponse, HttpResponseNotFound, Http404
 from apiclient.http import MediaFileUpload
 import json
 
-def merge(request):
+def merge(request, userid):
     global docService, driveService
 
-    docService, driveService = GoogleOAuthService.init()
+    docService, driveService = GoogleOAuthService.init(userid)
 
     # Google Doc Id of the template document that is being copied
     templateDocId = "1tCI3gonv6fCDhwfEPScHYwMqZr98EQ3y50HZQm19Xdo"

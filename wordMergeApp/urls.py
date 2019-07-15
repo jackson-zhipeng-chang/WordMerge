@@ -19,5 +19,5 @@ from django.urls import path, include
 from . import WordMergeHandler
 
 urlpatterns = [
-    path('test', WordMergeHandler.merge, name='test')
+    path('test/<uuid:userid>/', WordMergeHandler.merge, name='merge')
 ]
