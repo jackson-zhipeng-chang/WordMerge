@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'wordMergeApp'
-]
+    ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -49,6 +49,9 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+GOOGLE_OAUTH2_CLIENT_ID = '840492959274-c625ken52ouu76i42jr90t6e245cg6ju.apps.googleusercontent.com'
+GOOGLE_OAUTH2_CLIENT_SECRET = 'NUgiZKOmNN2bNZkvrDkVxMjo'
 
 ROOT_URLCONF = 'wordMerge.urls'
 
@@ -80,6 +83,7 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
+
 
 
 # Password validation

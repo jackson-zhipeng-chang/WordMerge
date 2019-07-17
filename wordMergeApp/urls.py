@@ -16,8 +16,9 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.urls import path, include
-from . import WordMergeHandler
+from . import WordMergeHandler, GoogleOAuthService
 
 urlpatterns = [
-    path('test/<uuid:userid>/', WordMergeHandler.merge, name='merge')
+    path('test/<uuid:userid>', WordMergeHandler.merge, name='merge'),
+    path('register/<str:username>', GoogleOAuthService.getToken, name='getToken')
 ]

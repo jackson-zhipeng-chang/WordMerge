@@ -40,6 +40,11 @@ def copyFile(docService, driveService, fileId, newFileTitle = None):
             ).execute()
     return copiedFile.get('id')
 
+
+
+
+
+
 def mergeFields(docService, driveService, fileId, fieldDictionary):
     """Merge fields into their place holders within a document.
     The fieldDictionary must contain at least one field for this function to do anything. 
@@ -73,6 +78,42 @@ def shareFile(docService, driveService, fileId, role = "reader", emailMessage=No
         emailMessage=emailMessage,
         fileId=fileId
         ).execute()
+
+def callback(request_id, response, exception):
+    if exception:
+        # Handle error
+        print (exception)
+    else:
+        print ("Permission Id: %s" % response.get('id'))
+
+def shareWithUsers(docService, driveService, fileId, emailAddresses, role = "reader", sendNotificationEmail = False, emailMessage = None):
+    """Shares a file with a list of users.
+    Inputs: 
+    emailAddresses: ['zchang@ualberta.ca','zhipeng.chang@edmonton.ca']
+    """
+    batch = driveService.new_batch_http_request(callback=shareWithUsersCallback)
+
+    for emailAddress in emailAddresses:
+        user_permission = {
+            'type': 'user',
+            'role': role,
+            'emailAddress': emailAddress
+        }
+        batch.add(driveService.permissions().create(
+                fileId=fileId,
+                body=user_permission,
+                fields='id',
+                sendNotificationEmail=sendNotificationEmail,
+                emailMessage=emailMessage
+        ))
+    batch.execute()
+
+def shareWithUsersCallback(request_id, response, exception):
+    if exception:
+        # Handle error
+        print (exception)
+    else:
+        print ("Permission Id: %s" % response.get('id'))
 
 def convertToPDF(docService, driveService, googleDocId):
     """Downloads the given google document as a PDF file.

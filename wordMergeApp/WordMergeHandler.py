@@ -23,12 +23,13 @@ def merge(request, userid):
     templateDocId = "1tCI3gonv6fCDhwfEPScHYwMqZr98EQ3y50HZQm19Xdo"
             
     fieldDictionary = {
-        "[[name]]" : 'Jackson',
+        "[[name]]" : 'á(*)',
         "[[email]]" : 'zhipeng.chang@edmonton.ca' 
     }
     
     # Clone the template document and merge in the defined fields.
     copiedFileId = GoogleDriveService.copyFile(docService, driveService, templateDocId, fieldDictionary)
+    print('id: '+copiedFileId)
 
     GoogleDriveService.mergeFields(docService, driveService, copiedFileId, fieldDictionary)
 
@@ -36,7 +37,10 @@ def merge(request, userid):
     GoogleDriveService.convertToPDF(docService, driveService, copiedFileId)
 
     # Share the new document with everyone who has the link.
-    GoogleDriveService.shareFile(docService, driveService, copiedFileId)
-    return HttpResponse(200)
+    emailAddress = []
+    emailAddress.append('zchang@ualberta.ca')
+    emailAddress.append('zhipeng.chang@edmonton.ca')
+    #GoogleDriveService.shareWithUsers(docService, driveService, copiedFileId, emailAddress, sendNotificationEmail = True, emailMessage = 'test')
 
+    return HttpResponse(200)
 
