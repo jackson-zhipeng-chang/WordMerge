@@ -55,7 +55,7 @@ def mergeFields(docService, driveService, fileId, fieldDictionary):
             request = {
                 'replaceAllText': {
                     'containsText': {
-                        'text': key,
+                        'text': '[['+key+']]',
                         'matchCase': 'true'
                     },
                     'replaceText': str(val or ''),

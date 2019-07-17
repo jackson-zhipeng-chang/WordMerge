@@ -14,18 +14,33 @@ from django.http import HttpResponse, HttpResponseNotFound, Http404
 from apiclient.http import MediaFileUpload
 import json
 
+'''
+GET http://127.0.0.1:8000/convert/2ca9f276-7f7f-4f0b-bff3-a40a2008764c
+Content-Type:application/json
+X-DOCID:1n4sgKyxZp8qpU3KwkFclYL1fr_EskIOOEkqOI_Fh158
+X-FIELDDIC:{"name":"test","email":"zhipeng.chang@edmonton.ca"}
+X-SHARE:["zchang@ualberta.ca","zchang0302@gmail.com"]
+'''
 def merge(request, userid):
     global docService, driveService
 
     docService, driveService = GoogleOAuthService.init(userid)
-
+    shareWithUsers = False
     # Google Doc Id of the template document that is being copied
-    templateDocId = "1tCI3gonv6fCDhwfEPScHYwMqZr98EQ3y50HZQm19Xdo"
-            
-    fieldDictionary = {
-        "[[name]]" : 'á(*)',
-        "[[email]]" : 'zhipeng.chang@edmonton.ca' 
-    }
+
+    if ("HTTP_X_DOCID" in request.META) and ("HTTP_X_FIELDDIC" in request.META):
+        templateDocId = request.META["HTTP_X_DOCID"]
+        fieldDictionary = json.loads(request.META["HTTP_X_FIELDDIC"])
+        if "HTTP_X_SHARE" in request.META:
+            shareWithUsers = True
+            emailAddress = json.loads(request.META["HTTP_X_SHARE"])
+        
+    else:
+        templateDocId = "1tCI3gonv6fCDhwfEPScHYwMqZr98EQ3y50HZQm19Xdo"
+        fieldDictionary = {
+            "name" : 'test',
+            "email" : 'zhipeng.chang@edmonton.ca' 
+        }
     
     # Clone the template document and merge in the defined fields.
     copiedFileId = GoogleDriveService.copyFile(docService, driveService, templateDocId, fieldDictionary)
@@ -36,10 +51,8 @@ def merge(request, userid):
     webViewLink = GoogleDriveService.convertToPDF(docService, driveService, copiedFileId)
 
     # Share the new document with everyone who has the link.
-    emailAddress = []
-    emailAddress.append('zchang@ualberta.ca')
-    emailAddress.append('zhipeng.chang@edmonton.ca')
-    #GoogleDriveService.shareWithUsers(docService, driveService, copiedFileId, emailAddress, sendNotificationEmail = True, emailMessage = 'test')
+    if shareWithUsers:
+        GoogleDriveService.shareWithUsers(docService, driveService, copiedFileId, emailAddress, sendNotificationEmail = True, emailMessage = 'test')
 
     return HttpResponse(webViewLink)
 
