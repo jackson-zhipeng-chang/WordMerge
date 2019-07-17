@@ -18,8 +18,8 @@ from django.http import HttpResponse, HttpResponseNotFound, Http404
 SCOPES = ["https://www.googleapis.com/auth/documents", "https://www.googleapis.com/auth/drive"]    
 
 def init(userid):
-    """Initilization Function, takes SCOPES.
-    """
+    '''Initilization Function, takes SCOPES.
+    '''
     creds = generateCredentials(userid)
     docService = build('docs', 'v1', credentials=creds, cache_discovery=False)
     driveService = build('drive', 'v3', credentials=creds, cache_discovery=False)
@@ -28,17 +28,11 @@ def init(userid):
 
 
 def generateCredentials(userid):
-    """Generates credentials for use by the application.
+    '''Generates credentials for use by the application.
     SCOPES is a list of google api scopes to be used
     Ex) SCOPES = ['https://www.googleapis.com/auth/documents', 'https://www.googleapis.com/auth/drive']
-    """
-    #creds = ServiceAccountCredentials.from_json_keyfile_name(credentialsFilepath, scopes=SCOPES)
-
+    '''
     creds = None
-    # The file token.pickle stores the user's access and refresh tokens, and is
-    # created automatically when the authorization flow completes for the first
-    # time.
-
     group = Group.objects.get(id=userid)
     creds = group.token
     '''
@@ -61,12 +55,11 @@ def generateCredentials(userid):
 
 
 def getToken(request, username):
-    """Generates credentials for use by the application.
+    '''Generates credentials for use by the application.
     SCOPES is a list of google api scopes to be used
     Ex) SCOPES = ['https://www.googleapis.com/auth/documents', 'https://www.googleapis.com/auth/drive']
-    """
-    #creds = ServiceAccountCredentials.from_json_keyfile_name(credentialsFilepath, scopes=SCOPES)
- 
+    '''
+
     creds = None
     # If there are no (valid) credentials available, let the user log in.
     if not creds or not creds.valid:
