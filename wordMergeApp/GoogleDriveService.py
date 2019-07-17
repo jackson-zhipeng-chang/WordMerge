@@ -7,6 +7,7 @@ import os
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
+
 from django.shortcuts import render
 from . import GoogleOAuthService
 from django.http import HttpResponse, HttpResponseNotFound, Http404
@@ -47,20 +48,21 @@ def mergeFields(docService, driveService, fileId, fieldDictionary):
     Merge fields into their place holders within a document.
     The fieldDictionary must contain at least one field for this function to do anything. 
     '''
-    batchs = []
-    for key, val in fieldDictionary.items():
-        batch = {
-            'replaceAllText': {
-                'containsText': {
-                    'text': '{{'+key+'}}',
-                    'matchCase': 'true'
-                },
-                'replaceText': val,
+    if len(fieldDictionary) > 0:
+        requests = []
+        for key, val in fieldDictionary.items():
+            request = {
+                'replaceAllText': {
+                    'containsText': {
+                        'text': '{{'+key+'}}',
+                        'matchCase': 'true'
+                    },
+                    'replaceText': val,
+                }
             }
-        }
-        batchs.append(batchs)
-
-    docService.documents().batchUpdate(documentId=fileId, body={'requests': batchs}).execute()
+            requests.append(request)
+    
+        docService.documents().batchUpdate(documentId=fileId, body={'requests': requests}).execute()
 
 def shareFile(docService, driveService, fileId, role = "reader", emailMessage=None):
     '''
@@ -86,8 +88,8 @@ def shareWithUsers(docService, driveService, fileId, emailAddresses, role = "rea
 
     for emailAddress in emailAddresses:
         user_permission = {
-            'role': role,
             'type': 'user',
+            'role': role,
             'emailAddress': emailAddress
         }
         batch.add(driveService.permissions().create(
