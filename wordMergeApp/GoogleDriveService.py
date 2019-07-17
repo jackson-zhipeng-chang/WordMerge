@@ -129,3 +129,4 @@ def convertToPDF(docService, driveService, googleDocId):
     media = MediaFileUpload(filePath, mimetype='application/pdf')
     file = driveService.files().create(body=file_metadata,media_body=media, fields='webViewLink').execute()
     os.remove(filePath)
+    return file.get('webViewLink')

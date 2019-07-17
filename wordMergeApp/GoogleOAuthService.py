@@ -13,6 +13,8 @@ from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, render,get_list_or_404
 from .models import Group
 import json
+from django.http import HttpResponse, HttpResponseNotFound, Http404
+
 SCOPES = ["https://www.googleapis.com/auth/documents", "https://www.googleapis.com/auth/drive"]    
 
 def init(userid):
@@ -66,10 +68,6 @@ def getToken(request, username):
     #creds = ServiceAccountCredentials.from_json_keyfile_name(credentialsFilepath, scopes=SCOPES)
  
     creds = None
-    # The file token.pickle stores the user's access and refresh tokens, and is
-    # created automatically when the authorization flow completes for the first
-    # time.
-
     # If there are no (valid) credentials available, let the user log in.
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
@@ -78,11 +76,9 @@ def getToken(request, username):
             flow = InstalledAppFlow.from_client_secrets_file(
                 'credentials.json', SCOPES)
             creds = flow.run_local_server(port=0)
-        # Save the credentials for the next run
-        with open('token.pickle', 'wb') as token:
-            pickle.dump(creds, token)
-    user = User.objects.create_user(username=username,password='password', is_active=True)
+
+    user = User.objects.create_user(username=username,password='password')
     group = Group.objects.create(displayName=username,user=user, token=creds)
     group.save()
 
-    return creds
+    return HttpResponse(group.id)

@@ -19,6 +19,6 @@ from django.urls import path, include
 from . import WordMergeHandler, GoogleOAuthService
 
 urlpatterns = [
-    path('test/<uuid:userid>', WordMergeHandler.merge, name='merge'),
+    path('convert/<uuid:userid>', WordMergeHandler.merge, name='merge'),
     path('register/<str:username>', GoogleOAuthService.getToken, name='getToken')
 ]

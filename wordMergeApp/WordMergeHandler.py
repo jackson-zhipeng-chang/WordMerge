@@ -29,12 +29,11 @@ def merge(request, userid):
     
     # Clone the template document and merge in the defined fields.
     copiedFileId = GoogleDriveService.copyFile(docService, driveService, templateDocId, fieldDictionary)
-    print('id: '+copiedFileId)
 
     GoogleDriveService.mergeFields(docService, driveService, copiedFileId, fieldDictionary)
 
     # Display the link on the Winchester page
-    GoogleDriveService.convertToPDF(docService, driveService, copiedFileId)
+    webViewLink = GoogleDriveService.convertToPDF(docService, driveService, copiedFileId)
 
     # Share the new document with everyone who has the link.
     emailAddress = []
@@ -42,5 +41,5 @@ def merge(request, userid):
     emailAddress.append('zhipeng.chang@edmonton.ca')
     #GoogleDriveService.shareWithUsers(docService, driveService, copiedFileId, emailAddress, sendNotificationEmail = True, emailMessage = 'test')
 
-    return HttpResponse(200)
+    return HttpResponse(webViewLink)
 
