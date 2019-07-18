@@ -15,7 +15,7 @@ from .models import Group
 import json
 from django.http import HttpResponse, HttpResponseNotFound, Http404
 
-SCOPES = ["https://www.googleapis.com/auth/documents", "https://www.googleapis.com/auth/drive"]    
+SCOPES = ["https://www.googleapis.com/auth/documents", "https://www.googleapis.com/auth/drive", "https://www.googleapis.com/auth/gmail.metadata"]    
 
 def init(userid):
     '''Initilization Function, takes SCOPES.
@@ -37,7 +37,7 @@ def generateCredentials(userid):
     return creds
 
 
-def getToken(request, username):
+def getToken(request):
     '''Generates credentials for use by the application.
     SCOPES is a list of google api scopes to be used
     Ex) SCOPES = ['https://www.googleapis.com/auth/documents', 'https://www.googleapis.com/auth/drive']
@@ -52,9 +52,26 @@ def getToken(request, username):
             flow = InstalledAppFlow.from_client_secrets_file(
                 'credentials.json', SCOPES)
             creds = flow.run_local_server(port=0)
+    user_email = get_user_info(creds)
 
-    user = User.objects.create_user(username=username,password='password')
-    group = Group.objects.create(displayName=username,user=user, token=creds)
-    group.save()
+    if not User.objects.filter(username=user_email).exists() :
+        user = User.objects.create_user(username=user_email,email=user_email, password='password', is_active=False)
+        group = Group.objects.create(displayName=user_email,user=user, token=creds)
+        group.save()
+        return HttpResponse(group.id)
+    else:
+        exist_user = User.objects.get(username=user_email,email=user_email)
+        if not Group.objects.filter(user=exist_user).exists() :
+            group = Group.objects.create(displayName=user_email,user=user, token=creds)
+            group.save()
+            message = 'You already have an account: %s'%group.id
+            return HttpResponse(message)
+        else:
+            group = Group.objects.get(user=exist_user)
+            message = 'You already have an account: %s'%group.id
+            return HttpResponse(message)
 
-    return HttpResponse(group.id)
+def get_user_info(creds):
+    gmailService = build('gmail', 'v1', credentials=creds)
+    user_info = gmailService.users().getProfile(userId='me').execute()
+    return user_info['emailAddress']

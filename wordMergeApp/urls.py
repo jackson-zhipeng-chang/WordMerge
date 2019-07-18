@@ -20,5 +20,5 @@ from . import WordMergeHandler, GoogleOAuthService
 
 urlpatterns = [
     path('convert/<uuid:userid>', WordMergeHandler.merge, name='merge'),
-    path('register/<str:username>', GoogleOAuthService.getToken, name='getToken')
+    path('register/', GoogleOAuthService.getToken, name='getToken')
 ]
