@@ -17,8 +17,13 @@ from django.contrib import admin
 from django.urls import path
 from django.urls import path, include
 from . import WordMergeHandler, GoogleOAuthService
+from django.contrib.auth import views
 
 urlpatterns = [
     path('convert/<uuid:userid>', WordMergeHandler.merge, name='merge'),
-    path('register/', GoogleOAuthService.getToken, name='getToken')
+    path('register/', GoogleOAuthService.getToken, name='getToken'),
+    path('auth/', include('social_django.urls', namespace='social')),
+    path('login/', views.LoginView.as_view(template_name="registration/login.html"), name='login'),
+    path('logout/', views.LogoutView, name='logout'),
+    path('', WordMergeHandler.home, name='home')
 ]

@@ -12,6 +12,8 @@ from . import GoogleOAuthService, GoogleDriveService
 from django.http import HttpResponse, HttpResponseNotFound, Http404
 from apiclient.http import MediaFileUpload
 import json
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
 
 '''
 GET http://127.0.0.1:8000/convert/2ca9f276-7f7f-4f0b-bff3-a40a2008764c
@@ -26,7 +28,7 @@ def merge(request, userid):
 
     if ("HTTP_X_DOCID" in request.META) and ("HTTP_X_FIELDDIC" in request.META):
         docService, driveService = GoogleOAuthService.init(userid)
-        
+
         shareWithUsers = False
         templateDocId = request.META["HTTP_X_DOCID"]
         fieldDictionary = json.loads(request.META["HTTP_X_FIELDDIC"])
@@ -51,3 +53,6 @@ def merge(request, userid):
 
     else:
         return HttpResponse("Please specify the Doc ID and Variables dictionary")
+
+def home(request):
+	return render(request, 'home.html')
