@@ -2,8 +2,15 @@
 
 {% block content %}
 	{% if user.is_authenticated %}
-             <p class="display-4">Hello, {{ user.username }}</p>
+		<p class="display-6">Hello, {{ user.username }}</p>
+		<p class="display-6">Your email address: {{ user.email }}</p>
+		{% if uuid is not None %}
+			<p class="display-6">Your unique ID is: {{ uuid }}</p>
+		{% else %}
+			<a class="display-6" href="/register">Please link your Google Drive here</a>
+		{% endif %}
+		<a class="display-6" href="/logout">Logout</a>
 	{% else %}
-             <a class="lead" href="{% url 'login' %}">Log in</a>
+		<a class="lead" href="{% url 'login' %}">Log in</a>
 	{% endif %}
 {% endblock content %}

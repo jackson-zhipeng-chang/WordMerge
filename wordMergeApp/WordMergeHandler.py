@@ -14,6 +14,11 @@ from apiclient.http import MediaFileUpload
 import json
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from .models import Group
+from django.contrib.auth import login, authenticate, logout
+
+
 
 '''
 GET http://127.0.0.1:8000/convert/2ca9f276-7f7f-4f0b-bff3-a40a2008764c
@@ -55,4 +60,18 @@ def merge(request, userid):
         return HttpResponse("Please specify the Doc ID and Variables dictionary")
 
 def home(request):
-	return render(request, 'home.html')
+    if request.user.is_authenticated:
+        user_email = request.user.email
+        user_uuid = None
+        exist_user = User.objects.get(email=user_email)
+        if Group.objects.filter(user=exist_user).exists():
+            group = Group.objects.get(user=exist_user)
+            user_uuid = group.id
+        return render(request, 'home.html', {'uuid':user_uuid})
+    else:
+        return render(request, 'home.html')
+
+def logout_user(request):
+    logout(request)
+    return render(request, 'home.html')
+

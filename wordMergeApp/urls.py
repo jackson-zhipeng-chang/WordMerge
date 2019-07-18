@@ -24,6 +24,6 @@ urlpatterns = [
     path('register/', GoogleOAuthService.getToken, name='getToken'),
     path('auth/', include('social_django.urls', namespace='social')),
     path('login/', views.LoginView.as_view(template_name="registration/login.html"), name='login'),
-    path('logout/', views.LogoutView, name='logout'),
+    path('logout/', WordMergeHandler.logout_user, name='logout'),
     path('', WordMergeHandler.home, name='home')
 ]
