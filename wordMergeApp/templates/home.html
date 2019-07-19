@@ -2,15 +2,24 @@
 
 {% block content %}
 	{% if user.is_authenticated %}
-		<p class="display-6">Hello, {{ user.username }}</p>
+		<h1>{{ user.username }}</h1>
 		<p class="display-6">Your email address: {{ user.email }}</p>
 		{% if uuid is not None %}
 			<p class="display-6">Please send the requests to: {{ uuid }}</p>
+			<p class="display-6" style="font-weight:bold">Histories</p>
+			{% for history in Histories %}
+				<p>{{ history.time }}</p>
+                <p>{{history.payload}} </p>
+            {% endfor %}
+
 		{% else %}
 			<a class="display-6" href="../register">Please link your Google Drive here</a>
 		{% endif %}
-		<br><a class="display-6" href="/logout">Logout</a>
+		<div class="w3-dropdown-hover w3-hide-small w3-right" style="right:0;width:100px">
+		<br><a class="w3-bar-item w3-button" href="/logout">Logout</a>
+		</div>
 	{% else %}
 		<a class="lead" href="{% url 'login' %}">Log in</a>
 	{% endif %}
 {% endblock content %}
+

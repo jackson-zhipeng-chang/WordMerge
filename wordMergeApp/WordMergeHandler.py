@@ -15,8 +15,12 @@ import json
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from .models import Group
+from .models import Group, History
 from django.contrib.auth import login, authenticate, logout
+from threading import Thread
+import queue
+
+
 
 '''
 GET http://127.0.0.1:8000/convert/2ca9f276-7f7f-4f0b-bff3-a40a2008764c
@@ -27,14 +31,14 @@ X-SHARE:["zchang@ualberta.ca","zchang0302@gmail.com"]
 X-FOLDER:["1Z4ICpTDMfA2dHYUyopyGUUk2ZvGO4bG3"]
 '''
 
-def merge(request, userid):
+def merge(que, request, userid):
     # Google Doc Id of the template document that is being copied
 
     if ("HTTP_X_DOCID" in request.META) and ("HTTP_X_FIELDDIC" in request.META):
         if not Group.objects.filter(id=userid).exists():
             messag = 'User not found: %s'%(userid)
             response = JsonResponse({'message': messag}, status = 400)
-            return response 
+            que.put(response)
         else:
             docService, driveService = GoogleOAuthService.init(userid)
             shareWithUsers = False
@@ -47,7 +51,7 @@ def merge(request, userid):
             except Exception as e:
                 messag = 'Exception: %s. Headers %s'%(e, "HTTP_X_DOCID or HTTP_X_FIELDDIC")
                 response = JsonResponse({'message': messag}, status = 400)
-                return response
+                que.put(response)
 
             if "HTTP_X_SHARE" in request.META:
                 try:
@@ -56,7 +60,7 @@ def merge(request, userid):
                 except Exception as e:
                     messag = 'Exception: %s. Headers %s'%(e, "HTTP_X_SHARE")
                     response = JsonResponse({'message': messag}, status = 400)
-                    return response
+                    que.put(response)
 
                     if "HTTP_X_MESSAGE" in request.META:
                         try:
@@ -64,7 +68,7 @@ def merge(request, userid):
                         except Exception as e:
                             messag = 'Exception: %s. Headers %s'%(e, "HTTP_X_MESSAGE")
                             response = JsonResponse({'message': messag}, status = 400)
-                            return response
+                            que.put(response)
 
             if "HTTP_X_FOLDER" in request.META:
                 try:
@@ -72,7 +76,7 @@ def merge(request, userid):
                 except Exception as e:
                     messag = 'Exception: %s. Headers %s'%(e, "HTTP_X_FOLDER")
                     response = JsonResponse({'message': messag}, status = 400)
-                    return response   
+                    que.put(response)  
 
             if "HTTP_X_NEWTITLE" in request.META:
                 try:
@@ -80,7 +84,7 @@ def merge(request, userid):
                 except Exception as e:
                     messag = 'Exception: %s. Headers %s'%(e, "HTTP_X_NEWTITLE")
                     response = JsonResponse({'message': messag}, status = 400)
-                    return response  
+                    que.put(response)
 
             # Copy the template document and merge in the defined fields.
             try:
@@ -88,12 +92,12 @@ def merge(request, userid):
             except Exception as e:
                 messag = 'Exception: %s. When copy the file'%(e)
                 response = JsonResponse({'message': messag}, status = 400)
-                return response 
+                que.put(response)
 
             if copiedFileId is None:
                 message = 'File not found: %s'%templateDocId
                 response = JsonResponse({'message': message}, status = 404)
-                return response
+                que.put(response)
 
             # Merge in the defined fields.
             try:
@@ -101,7 +105,7 @@ def merge(request, userid):
             except Exception as e:
                 messag = 'Exception: %s. When merge the file'%(e)
                 response = JsonResponse({'message': messag}, status = 400)
-                return response 
+                que.put(response)
 
             # Display the link 
             try:
@@ -109,7 +113,7 @@ def merge(request, userid):
             except Exception as e:
                 messag = 'Exception: %s. When convert to the PDF'%(e)
                 response = JsonResponse({'message': messag}, status = 400)
-                return response 
+                que.put(response)
 
             # Share the new document with the list of users
             if shareWithUsers:
@@ -118,16 +122,37 @@ def merge(request, userid):
                 except Exception as e:
                     messag = 'Exception: %s. When share with users'%(e)
                     response = JsonResponse({'message': messag}, status = 400)
-                    return response 
+                    que.put(response)
 
             message = 'File has been converted, the link is: %s'%webViewLink
             response = JsonResponse({'message': message}, status = 200)
-            return response
+            que.put(response)
 
     else:
         message = "Please specify the Doc ID and Variables dictionary"
         response = JsonResponse({'message': message}, status = 400)
-        return response
+        que.put(response)
+
+def logToDB(request, userid):
+    payload = {}
+    for key, val in request.META.items():
+        if "HTTP_X" in key:
+            payload[key] = val
+    group = Group.objects.get(id=userid)
+    user = group.user
+    history = History.objects.create(group=group, user=user, payload=payload)
+    history.save()
+
+def main(request, userid):
+    que = queue.Queue()
+    merge_t = Thread(target = merge, args=(que, request, userid,))
+    log_t = Thread(target = logToDB, args=(request, userid,))
+    merge_t.start()
+    log_t.start()
+    merge_t.join()
+    log_t.join()
+    response = que.get()
+    return response
 
 def home(request):
     if request.user.is_authenticated:
@@ -137,7 +162,9 @@ def home(request):
         if Group.objects.filter(user=exist_user).exists(): 
             group = Group.objects.get(user=exist_user)
             user_uuid = group.id
-            return render(request, 'home.html', {'uuid':request.get_host()+ '/convert/' +str(user_uuid)})
+            histories = History.objects.filter(group = group)
+            print(histories)
+            return render(request, 'home.html', {'uuid':request.get_host()+ '/convert/' +str(user_uuid), 'Histories': histories})
         else:
             return None
     else:

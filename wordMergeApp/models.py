@@ -18,3 +18,13 @@ class Group(models.Model):
 
     def __str__(self):
         return self.displayName
+
+
+class History(models.Model):
+    group = models.ForeignKey(Group, on_delete=models.CASCADE, editable=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, editable=False)
+    payload = models.TextField(null=True, blank=True)
+    time = models.DateTimeField(auto_now_add=True, blank=True)
+
+    def __str__(self):
+        return self.user.email

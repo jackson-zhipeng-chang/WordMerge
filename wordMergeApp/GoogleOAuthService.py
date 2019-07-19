@@ -44,8 +44,8 @@ def getToken(request):
         if not Group.objects.filter(user=user).exists() :
             group = Group.objects.create(displayName=user.username,user=user, token=creds)
             group.save()
-            return render(request, 'home.html', {'uuid':group.id})
+            return render(request, 'home.html', {'uuid':request.get_host()+ '/convert/' +str(group.id)})
         else:
             group = Group.objects.get(user=user)
-            return render(request, 'home.html', {'uuid':group.id})
+            return render(request, 'home.html', {'uuid':request.get_host()+ '/convert/' +str(group.id)})
 
