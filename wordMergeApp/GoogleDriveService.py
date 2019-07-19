@@ -7,7 +7,6 @@ import os
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
-
 from django.shortcuts import render
 from . import GoogleOAuthService
 from django.http import HttpResponse, HttpResponseNotFound, Http404
@@ -22,16 +21,10 @@ def getFileTitle(docService, driveService, fileId):
     fileTitle = driveService.files().get(fileId=fileId).execute().get('name')
     return fileTitle
 
-def copyFile(docService, driveService, fileId, newFileTitle = None):
-    '''
-    Makes a Copy of a file in google drive. The file must be owned by or shared to the authenticated user.
-    fileId is the fileId of the file you are going to copy.
-    optionally define a title for the copied document.
-    returns the fileId of the newly created file.
-    '''
+def copyFile(docService, driveService, fileId, newFileTitle):
     newFileName = newFileTitle
     if newFileName == None:
-        newFileName = getFileTitle(fileId) + "_Copy"
+        newFileName = getFileTitle(docService, driveService, fileId) + "_Copy"
     
     copiedFileBody =  {
         "name": newFileName
@@ -104,7 +97,7 @@ def shareWithUsers(docService, driveService, fileId, emailAddresses, role = "rea
                 emailMessage=emailMessage
         ))
     batch.execute()
-
+    
 def shareWithUsersCallback(request_id, response, exception):
     if exception:
         print (exception)

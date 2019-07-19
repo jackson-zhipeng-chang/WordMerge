@@ -20,17 +20,12 @@ SCOPES = ["https://www.googleapis.com/auth/documents", "https://www.googleapis.c
 def init(userid):
     '''Initilization Function, takes SCOPES.
     '''
-    creds = generateCredentials(userid)
+    group = get_object_or_404(Group, id=userid)
+    creds = group.token
     docService = build('docs', 'v1', credentials=creds, cache_discovery=False)
     driveService = build('drive', 'v3', credentials=creds, cache_discovery=False)
 
     return docService, driveService
-
-
-def generateCredentials(userid):
-    group = get_object_or_404(Group, id=userid)
-    creds = group.token
-    return creds
 
 def getToken(request):
     if request.user.is_authenticated:
