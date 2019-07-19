@@ -5,11 +5,11 @@
 		<p class="display-6">Hello, {{ user.username }}</p>
 		<p class="display-6">Your email address: {{ user.email }}</p>
 		{% if uuid is not None %}
-			<p class="display-6">Your unique ID is: {{ uuid }}</p>
+			<p class="display-6">Please send the requests to: {{ uuid }}</p>
 		{% else %}
-			<a class="display-6" href="/register">Please link your Google Drive here</a>
+			<a class="display-6" href="../register">Please link your Google Drive here</a>
 		{% endif %}
-		<a class="display-6" href="/logout">Logout</a>
+		<br><a class="display-6" href="/logout">Logout</a>
 	{% else %}
 		<a class="lead" href="{% url 'login' %}">Log in</a>
 	{% endif %}

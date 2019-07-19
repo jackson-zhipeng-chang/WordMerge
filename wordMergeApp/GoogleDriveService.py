@@ -36,12 +36,16 @@ def copyFile(docService, driveService, fileId, newFileTitle = None):
     copiedFileBody =  {
         "name": newFileName
     }
+    try:
+        copiedFile = driveService.files().copy(
+                fileId=fileId,
+                body=copiedFileBody
+                ).execute()
+        return copiedFile.get('id')
 
-    copiedFile = driveService.files().copy(
-            fileId=fileId,
-            body=copiedFileBody
-            ).execute()
-    return copiedFile.get('id')
+    except Exception as e:
+        return None
+
 
 def mergeFields(docService, driveService, fileId, fieldDictionary):
     '''
@@ -103,14 +107,11 @@ def shareWithUsers(docService, driveService, fileId, emailAddresses, role = "rea
 
 def shareWithUsersCallback(request_id, response, exception):
     if exception:
-        # Handle error
         print (exception)
-    else:
-        print ("Permission Id: %s" % response.get('id'))
 
-def convertToPDF(docService, driveService, googleDocId):
+def convertToPDF(docService, driveService, googleDocId, parents_folder):
     '''
-    Downloads the given google document as a PDF file.
+    Convert the given google document as a PDF file and upload to the Google drive
     '''
     fileTitle = getFileTitle(docService, driveService, googleDocId)
     fileTitle += '.pdf'
@@ -119,7 +120,8 @@ def convertToPDF(docService, driveService, googleDocId):
     with open(filePath, "wb") as f:
         f.write(pdfFile)
     file_metadata = {
-        'name': fileTitle
+        'name': fileTitle,
+        'parents': parents_folder
     }
     media = MediaFileUpload(filePath, mimetype='application/pdf')
     file = driveService.files().create(body=file_metadata,media_body=media, fields='webViewLink').execute()

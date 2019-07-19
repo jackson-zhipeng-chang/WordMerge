@@ -9,7 +9,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from django.shortcuts import render
 from . import GoogleOAuthService, GoogleDriveService
-from django.http import HttpResponse, HttpResponseNotFound, Http404
+from django.http import HttpResponse, HttpResponseNotFound, Http404, JsonResponse
 from apiclient.http import MediaFileUpload
 import json
 from django.shortcuts import render
@@ -35,39 +35,97 @@ def merge(request, userid):
         docService, driveService = GoogleOAuthService.init(userid)
 
         shareWithUsers = False
-        templateDocId = request.META["HTTP_X_DOCID"]
-        fieldDictionary = json.loads(request.META["HTTP_X_FIELDDIC"])
+        emailMessage = None
+        parents_folder = []
+        try:
+            templateDocId = request.META["HTTP_X_DOCID"]
+            fieldDictionary = json.loads(request.META["HTTP_X_FIELDDIC"])
+        except Exception as e:
+            messag = 'Exception: %s. Headers %s'%(e, "HTTP_X_DOCID or HTTP_X_FIELDDIC")
+            response = JsonResponse({'message': messag}, status = 400)
+            return response
+
         if "HTTP_X_SHARE" in request.META:
-            shareWithUsers = True
-            emailAddress = json.loads(request.META["HTTP_X_SHARE"])
-    
+            try:
+                shareWithUsers = True
+                emailAddress = json.loads(request.META["HTTP_X_SHARE"])
+            except Exception as e:
+                messag = 'Exception: %s. Headers %s'%(e, "HTTP_X_SHARE")
+                response = JsonResponse({'message': messag}, status = 400)
+                return response
+
+                if "HTTP_X_MESSAGE" in request.META:
+                    try:
+                        emailMessage = json.loads(request.META["HTTP_X_MESSAGE"])
+                    except Exception as e:
+                        messag = 'Exception: %s. Headers %s'%(e, "HTTP_X_MESSAGE")
+                        response = JsonResponse({'message': messag}, status = 400)
+                        return response
+
+        if "HTTP_X_FOLDER" in request.META:
+            try:
+                parents_folder = json.loads(request.META["HTTP_X_FOLDER"])
+            except Exception as e:
+                messag = 'Exception: %s. Headers %s'%(e, "HTTP_X_FOLDER")
+                response = JsonResponse({'message': messag}, status = 400)
+                return response   
+
         # Clone the template document and merge in the defined fields.
-        copiedFileId = GoogleDriveService.copyFile(docService, driveService, templateDocId, fieldDictionary)
+        try:
+            copiedFileId = GoogleDriveService.copyFile(docService, driveService, templateDocId, fieldDictionary)
+        except Exception as e:
+            messag = 'Exception: %s. When copy the file'%(e)
+            response = JsonResponse({'message': messag}, status = 400)
+            return response 
+
+        if copiedFileId is None:
+            message = 'File not found: %s'%templateDocId
+            response = JsonResponse({'message': message}, status = 404)
+            return response
 
         # Merge in the defined fields.
-        GoogleDriveService.mergeFields(docService, driveService, copiedFileId, fieldDictionary)
+        try:
+            GoogleDriveService.mergeFields(docService, driveService, copiedFileId, fieldDictionary)
+        except Exception as e:
+            messag = 'Exception: %s. When merge the file'%(e)
+            response = JsonResponse({'message': messag}, status = 400)
+            return response 
 
         # Display the link 
-        webViewLink = GoogleDriveService.convertToPDF(docService, driveService, copiedFileId)
+        try:
+            webViewLink = GoogleDriveService.convertToPDF(docService, driveService, copiedFileId, parents_folder)
+        except Exception as e:
+            messag = 'Exception: %s. When convert to the PDF'%(e)
+            response = JsonResponse({'message': messag}, status = 400)
+            return response 
 
         # Share the new document with the list of users
         if shareWithUsers:
-            GoogleDriveService.shareWithUsers(docService, driveService, copiedFileId, emailAddress, sendNotificationEmail = True, emailMessage = 'test')
+            try:
+                GoogleDriveService.shareWithUsers(docService, driveService, copiedFileId, emailAddress, sendNotificationEmail = True, emailMessage = emailMessage)
+            except Exception as e:
+                messag = 'Exception: %s. When share with users'%(e)
+                response = JsonResponse({'message': messag}, status = 400)
+                return response 
 
-        return HttpResponse(webViewLink)
+        message = 'File has been converted, the link is: %s'%webViewLink
+        response = JsonResponse({'message': message}, status = 200)
+        return response
 
     else:
-        return HttpResponse("Please specify the Doc ID and Variables dictionary")
+        message = "Please specify the Doc ID and Variables dictionary"
+        response = JsonResponse({'message': message}, status = 400)
+        return response
 
 def home(request):
     if request.user.is_authenticated:
         user_email = request.user.email
         user_uuid = None
         exist_user = User.objects.get(email=user_email)
-        if Group.objects.filter(user=exist_user).exists():
+        if Group.objects.filter(user=exist_user).exists(): 
             group = Group.objects.get(user=exist_user)
             user_uuid = group.id
-        return render(request, 'home.html', {'uuid':user_uuid})
+        return render(request, 'home.html', {'uuid':request.get_host()+ '/convert/' +str(user_uuid)})
     else:
         return render(request, 'home.html')
 
