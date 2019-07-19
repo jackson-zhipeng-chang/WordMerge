@@ -2,24 +2,45 @@
 
 {% block content %}
 	{% if user.is_authenticated %}
-		<h1>{{ user.username }}</h1>
-		<p class="display-6">Your email address: {{ user.email }}</p>
-		{% if uuid is not None %}
-			<p class="display-6">Please send the requests to: {{ uuid }}</p>
-			<p class="display-6" style="font-weight:bold">Histories</p>
-			{% for history in Histories %}
-				<p>{{ history.time }}</p>
-                <p>{{history.payload}} </p>
-            {% endfor %}
+		<div class="w3-card w3-round" style="margin-top: 1%;">
+			<div class="w3-container w3-padding">
+				<div class="w3-center">
+					<h2>Profile</h2>
+					<p >Your email address: {{ user.email }}</p>
 
+		{% if uuid is not None %}
+			<p>Please send the requests to: {{ uuid }}</p>
+				</div>
+            </div>
+        </div>
+			<br>
+			<h2 class="w3-center">Histories</h2>
+			{% for history in Histories %}
+				<div class="w3-card w3-round" style="margin-top: 1%;">
+					<div class="w3-container w3-padding">
+						<div class="w3-center">
+							<p>{{ history.time }}</p>
+							<p>{{history.payload}} </p>
+						</div>
+					</div>
+				</div>
+            {% endfor %}
 		{% else %}
-			<a class="display-6" href="../register">Please link your Google Drive here</a>
+			<a href="../register">Please link your Google Drive here</a>
+				</div>
+            </div>
+        </div>
 		{% endif %}
-		<div class="w3-dropdown-hover w3-hide-small w3-right" style="right:0;width:100px">
-		<br><a class="w3-bar-item w3-button" href="/logout">Logout</a>
 		</div>
 	{% else %}
-		<a class="lead" href="{% url 'login' %}">Log in</a>
+			<div class="w3-card w3-round w3-dark" style="width:30%;margin:auto;margin-top: 5%;">
+			<div class="w3-container w3-padding">
+				<h2 class="w3-center">WordMerge Login</h2>
+				<form class="w3-center">
+					<a class="w3-center" href="{% url 'social:begin' 'google-oauth2' %}">Login</a><br>
+				</form>
+			</div>
+		</div>
 	{% endif %}
 {% endblock content %}
 

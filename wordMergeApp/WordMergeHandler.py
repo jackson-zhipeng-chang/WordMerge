@@ -163,10 +163,9 @@ def home(request):
             group = Group.objects.get(user=exist_user)
             user_uuid = group.id
             histories = History.objects.filter(group = group)
-            print(histories)
             return render(request, 'home.html', {'uuid':request.get_host()+ '/convert/' +str(user_uuid), 'Histories': histories})
         else:
-            return None
+            return render(request, 'home.html')
     else:
         return render(request, 'home.html')
 
