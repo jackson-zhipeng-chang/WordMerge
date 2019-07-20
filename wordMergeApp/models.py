@@ -1,7 +1,7 @@
 from django.db import models
 import uuid
 from django.contrib.auth.models import User
-from oauth2client.contrib.django_util.models import CredentialsField
+from .oauth2client.contrib.django_util.models import CredentialsField
 
 '''
 python3 manage.py makemigrations
