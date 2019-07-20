@@ -18,7 +18,7 @@ import httplib2
 import six
 from six.moves import http_client
 
-from oauth2client import _helpers
+from . import _helpers
 
 
 _LOGGER = logging.getLogger(__name__)
