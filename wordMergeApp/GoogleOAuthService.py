@@ -39,6 +39,7 @@ def getToken(request):
                 credentials = json.loads(config("credentials"))
                 flow = InstalledAppFlow.from_client_config(credentials, SCOPES)
                 host = request.META['HTTP_HOST']
+                print(host)
                 creds = flow.run_local_server(host=host, port=8001)
 
         user_email = request.user.email
