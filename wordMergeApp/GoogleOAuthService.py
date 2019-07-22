@@ -38,8 +38,8 @@ def getToken(request):
             else:
                 credentials = json.loads(config("credentials"))
                 flow = InstalledAppFlow.from_client_config(credentials, SCOPES)
-                print(request.META['REMOTE_ADDR'])
-                creds = flow.run_local_server(host=request.META['REMOTE_ADDR'], port=8001)
+                host = request.META['HTTP_HOST']
+                creds = flow.run_local_server(host=host, port=8001)
 
         user_email = request.user.email
         user = User.objects.get(email=user_email)
