@@ -15,7 +15,7 @@ from .models import Group
 import json
 from django.http import HttpResponse, HttpResponseNotFound, Http404
 from decouple import config
-
+import webbrowser
 SCOPES = ["https://www.googleapis.com/auth/documents", "https://www.googleapis.com/auth/drive"]    
 
 def init(userid):
@@ -36,6 +36,7 @@ def getToken(request):
             if creds and creds.expired and creds.refresh_token:
                 creds.refresh(Request())
             else:
+                webbrowser.open("https://www.google.ca",  new=1, autoraise=True)
                 credentials = json.loads(config("credentials"))
                 flow = InstalledAppFlow.from_client_config(credentials, SCOPES)
                 creds = flow.run_local_server(port=0)
