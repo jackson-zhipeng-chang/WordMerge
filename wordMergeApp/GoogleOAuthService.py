@@ -36,7 +36,8 @@ def getToken(request):
             if creds and creds.expired and creds.refresh_token:
                 creds.refresh(Request())
             else:
-                flow = InstalledAppFlow.from_client_config(config("credentials"), SCOPES)
+                credentials = json.loads(config("credentials"))
+                flow = InstalledAppFlow.from_client_config(credentials, SCOPES)
                 creds = flow.run_local_server(port=0)
 
         user_email = request.user.email
