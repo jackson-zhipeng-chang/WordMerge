@@ -104,3 +104,4 @@ venv.bak/
 .mypy_cache/
 credentials.json
 token.pickle
+.vscode/settings.json
