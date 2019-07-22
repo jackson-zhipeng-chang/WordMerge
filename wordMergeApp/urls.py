@@ -21,7 +21,7 @@ from django.contrib.auth import views
 
 urlpatterns = [
     path('convert/<uuid:userid>', WordMergeHandler.main, name='merge'),
-    path('register/', GoogleOAuthService.getToken, name='getToken'),
+    path('register/', GoogleOAuthService.getToken, name='auth'),
     path('auth/', include('social_django.urls', namespace='social')),
     path('login/', views.LoginView.as_view(template_name="registration/login.html"), name='login'),
     path('logout/', WordMergeHandler.logout_user, name='logout'),

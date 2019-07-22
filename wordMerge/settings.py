@@ -108,6 +108,8 @@ WSGI_APPLICATION = 'wordMerge.wsgi.application'
 LOGIN_URL = 'login'
 LOGOUT_URL = 'logout'
 LOGIN_REDIRECT_URL = 'home'
+SIGNUP_URL = 'auth'
+TIME_ZONE = 'America/Edmonton'
 
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
