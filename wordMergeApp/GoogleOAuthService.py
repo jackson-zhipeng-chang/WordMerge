@@ -36,7 +36,12 @@ def getToken(request):
             if creds and creds.expired and creds.refresh_token:
                 creds.refresh(Request())
             else:
-                webbrowser.open("https://www.google.ca",  new=1, autoraise=True)
+                try:
+                    print("Opening url")
+                    webbrowser.open("https://www.google.ca",  new=1, autoraise=True)
+                except Exception as e:
+                    print("Couldn't open the url: %s"(str(e)))
+
                 credentials = json.loads(config("credentials"))
                 flow = InstalledAppFlow.from_client_config(credentials, SCOPES)
                 creds = flow.run_local_server(port=0)
