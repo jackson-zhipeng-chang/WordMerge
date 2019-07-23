@@ -20,17 +20,6 @@ from django.contrib.auth import login, authenticate, logout
 from threading import Thread
 import queue
 
-
-
-'''
-GET http://127.0.0.1:8000/convert/2ca9f276-7f7f-4f0b-bff3-a40a2008764c
-Content-Type:application/json
-X-DOCID:1tCI3gonv6fCDhwfEPScHYwMqZr98EQ3y50HZQm19Xdo
-X-FIELDDIC:{"name":"jackson","email":"zhipeng.chang@edmonton.ca"}
-X-SHARE:["zchang@ualberta.ca","zchang0302@gmail.com"]
-X-FOLDER:["1Z4ICpTDMfA2dHYUyopyGUUk2ZvGO4bG3"]
-'''
-
 def merge(que, request, userid):
     # Google Doc Id of the template document that is being copied
 
