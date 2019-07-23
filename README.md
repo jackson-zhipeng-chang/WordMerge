@@ -1,7 +1,7 @@
 
 
 # WordMerge
-### A web API server that can merge your Google Docs template, convert the merged Google Doc as a PDF and save it to your Google Drive folder.
+A web API server that can merge your Google Docs template, convert the merged Google Doc as a PDF and save it to your Google Drive folder.
 
 ## [Demo](https://drive.google.com/file/d/1EnVnQqWbGThGhjmKMfukTJ0QBjQa0PqR/view?usp=sharing)
 
@@ -59,7 +59,7 @@ wordMergeApp/
 ├── GoogleOAuthService.py   # Handlers all Google OAuth services
 ├── WordMergeHandler.py     # Main entry point
 
-wordMerg/
+wordMerge/
 ├── setting.py     # Settings to both wordMergeApp app and the project 
 └── url.py         # All project level endpoints
 ```
