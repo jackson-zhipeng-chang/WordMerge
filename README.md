@@ -5,21 +5,22 @@
 ## Description
 This web API can merge your Google Docs template, convert the merged Google Doc as a PDF and save it to your Google Drive folder.
 
-### How to use:
-1. Define your Google Docs template and put your variables into {{ }}
-![Google Docs Template example](docs/GDoc_template.png)
-2. Log in with your Google account and authenticate the WordMerge app with your Google Drive.
-![Landing page](docs/Web_landing.png)
-3. Send the API request to ../convert/{your_assigned_uuid}, with all the variables you would like to merge 
-![API Request](docs/API_request.png)
-4. Once the template is successfully merged, the merged Google Doc will be saved to your Google Drive and you will get the link to the PDF version of the file.
-![Converted File](docs/Converted_pdf.png)
-
 ### Things can do
 1. Merge the Google Docs template you defined.
 2. Share the merged Google Doc/PDF with a list of users
 3. Save the merged Google Doc/PDF to a specific folder
 4. API interface
+
+### How to use:
+**1. Define your Google Docs template and put your variables into {{ }}**
+![Google Docs Template example](docs/GDoc_template.png)
+**2. Log in with your Google account and authenticate the WordMerge app with your Google Drive.**
+![Landing page](docs/Web_landing.png)
+**3. Send the API request to ../convert/{your_assigned_uuid}, with all the variables you would like to merge** 
+![API Request](docs/API_request.png)
+**4. Once the template is successfully merged, the merged Google Doc will be saved to your Google Drive and you will get the link to the PDF version of the file.**
+![Converted File](docs/Converted_pdf.png)
+
 
 ## To run the project locally:
 ```
